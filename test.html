@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Realtime Test</title>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <style>
+        .container {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        #messageLog {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #eee;
+            min-height: 200px;
+            background: #f9f9f9;
+        }
+        .status-connected {
+            color: green;
+        }
+        .status-disconnected {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="status" class="status-disconnected">Not Connected</div>
+        <button onclick="connect()">Connect</button>
+        <button onclick="joinDocument()">Join Document</button>
+        <button onclick="sendChange()">Send Change</button>
+        <textarea id="messageInput" rows="4" cols="50" 
+            placeholder="Type your message here"></textarea>
+        
+        <div id="messageLog">
+            <strong>Message Log:</strong>
+            <div id="messages"></div>
+        </div>
+    </div>
+
+    <script>
+        let socket;
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzFkYjFmZTFiNTAwN2E2NjgxYzc2NDgiLCJpYXQiOjE3Mjk5OTk1ODIsImV4cCI6MTczMDA4NTk4Mn0.g13uLniiGppWPs26YoNx59SnEaFpjEbJf6N_l72Y8zo'; // Replace with token from auth service
+        let documentId = '12345'; // You can change this to match your document ID
+
+        function addMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            messagesDiv.appendChild(messageElement);
+        }
+
+        function connect() {
+            socket = io('http://localhost:3003', {
+                auth: { token }
+            });
+
+            socket.on('connect', () => {
+                const statusDiv = document.getElementById('status');
+                statusDiv.textContent = 'Connected';
+                statusDiv.className = 'status-connected';
+                addMessage('Connected to server');
+            });
+
+            socket.on('document-changed', (data) => {
+                addMessage(`Received change from user ${data.userId}: ${JSON.stringify(data.changes)}`);
+                console.log('Document changed:', data);
+            });
+
+            socket.on('user-joined', (data) => {
+                addMessage(`User ${data.userId} joined document ${data.documentId}`);
+                console.log('User joined:', data);
+            });
+
+            socket.on('user-left', (data) => {
+                addMessage(`User ${data.userId} left document ${data.documentId}`);
+                console.log('User left:', data);
+            });
+
+            socket.on('connect_error', (error) => {
+                const statusDiv = document.getElementById('status');
+                statusDiv.textContent = 'Error: ' + error.message;
+                statusDiv.className = 'status-disconnected';
+                addMessage('Connection error: ' + error.message);
+                console.error('Connection error:', error);
+            });
+        }
+
+        function joinDocument() {
+            socket.emit('join-document', documentId);
+            addMessage(`Joined document ${documentId}`);
+        }
+
+        function sendChange() {
+            const messageInput = document.getElementById('messageInput');
+            const changes = {
+                text: messageInput.value || 'Hello World!',
+                timestamp: new Date().toISOString()
+            };
+            
+            socket.emit('document-change', {
+                documentId: documentId,
+                changes: changes
+            });
+            
+            addMessage(`Sent change: ${JSON.stringify(changes)}`);
+            messageInput.value = ''; // Clear input after sending
+        }
+    </script>
+</body>
+</html>

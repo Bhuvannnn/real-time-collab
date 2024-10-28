@@ -1,3 +1,4 @@
+// document-service/src/models/Document.js
 const mongoose = require('mongoose');
 
 const documentSchema = new mongoose.Schema({
@@ -15,8 +16,15 @@ const documentSchema = new mongoose.Schema({
         required: true
     },
     collaborators: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        userId: {
+            type: mongoose.Schema.Types.ObjectId
+        },
+        email: String,
+        permission: {
+            type: String,
+            enum: ['read', 'write'],
+            default: 'write'
+        }
     }],
     lastModified: {
         type: Date,

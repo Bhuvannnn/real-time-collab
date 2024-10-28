@@ -96,4 +96,23 @@ router.get('/profile', auth, async (req, res) => {
     }
 });
 
+router.post('/user-by-email', auth, async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({
+            userId: user._id,
+            email: user.email,
+            name: user.name
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
