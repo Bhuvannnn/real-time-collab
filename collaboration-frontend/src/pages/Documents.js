@@ -1,4 +1,4 @@
-// src/pages/Documents.js (Frontend)
+// src/pages/Documents.js
 import React, { useEffect, useState } from 'react';
 import { 
     Container, 
@@ -8,7 +8,6 @@ import {
     List, 
     ListItem, 
     ListItemText,
-    IconButton 
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ShareDialog from '../components/ShareDialog';
@@ -19,10 +18,6 @@ function Documents() {
     const navigate = useNavigate();
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [shareDialogOpen, setShareDialogOpen] = useState(false);
-
-    useEffect(() => {
-        loadDocuments();
-    }, []);
 
     const loadDocuments = async () => {
         try {
@@ -39,6 +34,10 @@ function Documents() {
             setError('Failed to load documents');
         }
     };
+
+    useEffect(() => {
+        loadDocuments();
+    }, []);
 
     const createNewDocument = async () => {
         try {
@@ -66,9 +65,9 @@ function Documents() {
         setShareDialogOpen(true);
     };
 
-    const handleShareComplete = () => {
+    const handleShareComplete = async () => {
+        await loadDocuments(); // Reload the documents list after sharing or removing collaborators
         setShareDialogOpen(false);
-        loadDocuments(); // Reload documents to update sharing status
     };
 
     return (

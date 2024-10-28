@@ -117,26 +117,57 @@ router.get('/:id', auth, async (req, res) => {
 // Update document
 router.patch('/:id', auth, async (req, res) => {
     try {
-        const document = await Document.findOneAndUpdate(
-            {
-                _id: req.params.id,
-                $or: [
-                    { owner: req.user.userId },
-                    { 'collaborators.userId': req.user.userId }
-                ]
-            },
-            {
-                ...req.body,
-                lastModified: new Date()
-            },
-            { new: true }
-        );
+        // First find the document to check permissions
+        const document = await Document.findById(req.params.id);
+        
         if (!document) {
             return res.status(404).json({ error: 'Document not found' });
         }
+
+        // Check if user has write permission
+        const isOwner = document.owner.toString() === req.user.userId;
+        const collaborator = document.collaborators.find(
+            c => c.userId.toString() === req.user.userId
+        );
+        
+        if (!isOwner && (!collaborator || collaborator.permission !== 'write')) {
+            return res.status(403).json({ error: 'You do not have permission to edit this document' });
+        }
+
+        // If they have permission, update the document
+        Object.assign(document, req.body);
+        document.lastModified = new Date();
+        await document.save();
+        
         res.json(document);
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+});
+
+// Add or update this route for removing collaborators
+router.delete('/:id/collaborators/:userId', auth, async (req, res) => {
+    try {
+        const document = await Document.findOne({
+            _id: req.params.id,
+            owner: req.user.userId // Only document owner can remove collaborators
+        });
+
+        if (!document) {
+            return res.status(404).json({ error: 'Document not found' });
+        }
+
+        // Remove the collaborator
+        document.collaborators = document.collaborators.filter(
+            collaborator => collaborator.userId.toString() !== req.params.userId
+        );
+
+        await document.save();
+        console.log('Collaborator removed successfully');
+        res.json({ message: 'Collaborator removed successfully' });
+    } catch (error) {
+        console.error('Error removing collaborator:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 

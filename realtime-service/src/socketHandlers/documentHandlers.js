@@ -61,39 +61,35 @@ const documentHandlers = (io, socket) => {
     };
 
     const handleTypingStart = (documentId) => {
-        if (!typingUsers.has(documentId)) {
-            typingUsers.set(documentId, new Set());
-        }
-        typingUsers.get(documentId).add(socket.userId);
-        
-        if (activeDocuments.has(documentId)) {
-            const userMap = activeDocuments.get(documentId);
-            if (userMap.has(socket.userId)) {
-                userMap.get(socket.userId).isTyping = true;
-            }
+        if (!activeDocuments.has(documentId)) return;
+
+        const userMap = activeDocuments.get(documentId);
+        if (userMap.has(socket.userId)) {
+            const userData = userMap.get(socket.userId);
+            userData.isTyping = true;
+            userMap.set(socket.userId, userData);
         }
 
         // Broadcast typing status to all users in the document
-        io.to(documentId).emit('typing-update', {
+        io.to(documentId).emit('active-users', {
             documentId,
             users: Array.from(activeDocuments.get(documentId).values())
         });
     };
 
+
     const handleTypingEnd = (documentId) => {
-        if (typingUsers.has(documentId)) {
-            typingUsers.get(documentId).delete(socket.userId);
-        }
-        
-        if (activeDocuments.has(documentId)) {
-            const userMap = activeDocuments.get(documentId);
-            if (userMap.has(socket.userId)) {
-                userMap.get(socket.userId).isTyping = false;
-            }
+        if (!activeDocuments.has(documentId)) return;
+
+        const userMap = activeDocuments.get(documentId);
+        if (userMap.has(socket.userId)) {
+            const userData = userMap.get(socket.userId);
+            userData.isTyping = false;
+            userMap.set(socket.userId, userData);
         }
 
         // Broadcast typing status update
-        io.to(documentId).emit('typing-update', {
+        io.to(documentId).emit('active-users', {
             documentId,
             users: Array.from(activeDocuments.get(documentId).values())
         });

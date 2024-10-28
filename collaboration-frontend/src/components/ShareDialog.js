@@ -52,9 +52,6 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
             if (onShare) {
                 onShare();
             }
-            
-            // Show success message or close dialog
-            onClose();
         } catch (error) {
             console.error('Error sharing document:', error);
             setError(error.message || 'Failed to share document');
@@ -63,18 +60,19 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
         }
     };
 
-    const handleRemoveCollaborator = async (userId) => {
+    const handleRemoveCollaborator = async (collaborator) => {
         try {
             setLoading(true);
             setError('');
             
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `http://localhost:3002/api/documents/${document._id}/collaborators/${userId}`,
+                `http://localhost:3002/api/documents/${document._id}/collaborators/${collaborator.userId}`,
                 {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
                 }
             );
@@ -84,6 +82,7 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
                 throw new Error(data.error || 'Failed to remove collaborator');
             }
 
+            console.log('Collaborator removed successfully');
             if (onShare) {
                 onShare(); // Refresh the collaborators list
             }
@@ -126,7 +125,7 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
                     </Select>
                 </div>
 
-                {collaborators.length > 0 && (
+                {collaborators && collaborators.length > 0 && (
                     <>
                         <Typography variant="h6">Shared with</Typography>
                         <Table>
@@ -145,7 +144,7 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
                                         <TableCell>
                                             <Button 
                                                 color="error"
-                                                onClick={() => handleRemoveCollaborator(collaborator.userId)}
+                                                onClick={() => handleRemoveCollaborator(collaborator)}
                                                 disabled={loading}
                                             >
                                                 Remove

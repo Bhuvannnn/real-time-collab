@@ -15,6 +15,43 @@ function DocumentEditor() {
     const [activeUsers, setActiveUsers] = useState([]);
     const typingTimeoutRef = useRef(null);
     const ignoreNextChangeRef = useRef(false);
+    const isTypingRef = useRef(false);
+    const [hasWritePermission, setHasWritePermission] = useState(true);
+
+
+    // Initialize socket connection
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const newSocket = io('http://localhost:3003', {
+            auth: { token }
+        });
+
+        newSocket.on('connect', () => {
+            console.log('Connected to socket server');
+            newSocket.emit('join-document', id);
+        });
+
+        newSocket.on('document-changed', (data) => {
+            console.log('Received change:', data);
+            if (data.userId !== newSocket.id) {
+                ignoreNextChangeRef.current = true;
+                setContent(data.changes.text);
+            }
+        });
+
+        newSocket.on('active-users', (data) => {
+            console.log('Active users update:', data);
+            setActiveUsers(data.users);
+        });
+
+        setSocket(newSocket);
+
+        return () => {
+            if (newSocket) {
+                newSocket.disconnect();
+            }
+        };
+    }, [id]);
 
     // Load initial document content
     useEffect(() => {
@@ -33,9 +70,15 @@ function DocumentEditor() {
                 }
 
                 const data = await response.json();
-                console.log('Loaded document:', data);
                 setDocument(data);
-                setContent(data.content || ''); // Set empty string if content is null
+                setContent(data.content || '');
+                const currentUserId = JSON.parse(atob(token.split('.')[1])).userId;
+                const isOwner = data.owner === currentUserId;
+                
+                // Check if user has write permission
+                const userCollaborator = data.collaborators.find(c => c.userId === currentUserId);
+                setHasWritePermission(isOwner || (userCollaborator?.permission === 'write'));
+                
                 setLoading(false);
             } catch (error) {
                 console.error('Error loading document:', error);
@@ -46,38 +89,56 @@ function DocumentEditor() {
         loadDocument();
     }, [id]);
 
-    // Initialize socket connection
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        const newSocket = io('http://localhost:3003', {
-            auth: { token }
-        });
+    const startTyping = () => {
+        if (!isTypingRef.current && socket) {
+            isTypingRef.current = true;
+            socket.emit('typing-start', id);
+        }
 
-        newSocket.on('connect', () => {
-            console.log('Connected to socket server');
-            newSocket.emit('join-document', id);
-        });
+        // Clear any existing timeout
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
 
-        newSocket.on('document-changed', (data) => {
-            console.log('Received document change:', data);
-            if (data.userId !== newSocket.id) {
-                ignoreNextChangeRef.current = true;
-                setContent(data.changes.text);
+        // Set new timeout
+        typingTimeoutRef.current = setTimeout(() => {
+            if (isTypingRef.current && socket) {
+                isTypingRef.current = false;
+                socket.emit('typing-end', id);
             }
-        });
+        }, 2000); // Increased timeout to 2 seconds
+    };
 
-        newSocket.on('active-users', (data) => {
-            setActiveUsers(data.users);
-        });
+    const handleEditorChange = (newValue) => {
+        if (ignoreNextChangeRef.current) {
+            ignoreNextChangeRef.current = false;
+            return;
+        }
 
-        setSocket(newSocket);
+        setContent(newValue);
+        startTyping();
+        
+        if (socket) {
+            socket.emit('document-change', {
+                documentId: id,
+                changes: {
+                    text: newValue,
+                    timestamp: new Date().toISOString()
+                }
+            });
+        }
 
+        saveDocument(newValue);
+    };
+
+    // Cleanup typing timeout on unmount
+    useEffect(() => {
         return () => {
-            if (newSocket) {
-                newSocket.disconnect();
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
             }
         };
-    }, [id]);
+    }, []);
 
     // Debounced save function
     const saveDocument = React.useCallback(
@@ -98,35 +159,12 @@ function DocumentEditor() {
                 if (!response.ok) {
                     throw new Error('Failed to save document');
                 }
-
-                console.log('Document saved successfully');
             } catch (error) {
                 console.error('Error saving document:', error);
             }
         }, 1000),
         [id]
     );
-
-    const handleEditorChange = (newValue) => {
-        if (ignoreNextChangeRef.current) {
-            ignoreNextChangeRef.current = false;
-            return;
-        }
-
-        setContent(newValue);
-        
-        if (socket) {
-            socket.emit('document-change', {
-                documentId: id,
-                changes: {
-                    text: newValue,
-                    timestamp: new Date().toISOString()
-                }
-            });
-        }
-
-        saveDocument(newValue);
-    };
 
     if (loading) {
         return (
@@ -149,7 +187,7 @@ function DocumentEditor() {
                     height="500px"
                     defaultLanguage="plaintext"
                     value={content}
-                    onChange={handleEditorChange}
+                    onChange={hasWritePermission ? handleEditorChange : undefined}
                     options={{
                         minimap: { enabled: false },
                         wordWrap: 'on',
@@ -158,6 +196,7 @@ function DocumentEditor() {
                         folding: false,
                         lineDecorationsWidth: 0,
                         lineNumbersMinChars: 0,
+                        readOnly: !hasWritePermission
                     }}
                 />
             </Paper>
@@ -165,7 +204,6 @@ function DocumentEditor() {
     );
 }
 
-// Debounce utility function
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
