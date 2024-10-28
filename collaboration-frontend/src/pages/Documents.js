@@ -17,10 +17,13 @@ import {
     Menu,
     MenuItem,
     Alert,
+    AppBar,
+    Toolbar,
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import ShareDialog from '../components/ShareDialog';
+import { Logout as LogOutIcon } from '@mui/icons-material';
 
 
 function Documents() {
@@ -36,6 +39,10 @@ function Documents() {
     const [editTitle, setEditTitle] = useState('');
     const navigate = useNavigate();
     const [currentUserId, setCurrentUserId] = useState(localStorage.getItem('userId'));
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/login');
+    };
 
 
     const loadDocuments = async () => {
@@ -165,6 +172,21 @@ function Documents() {
     // const currentUserId = localStorage.getItem('userId'); // You'll need to store this when logging in
 
     return (
+        <>
+        <AppBar position="fixed" color="default" elevation={1}>
+            <Toolbar sx={{ justifyContent: 'space-between' }}>
+                <Typography variant="h6" component="div">
+                    Collaborative Editor
+                </Typography>
+                <Button
+                    variant="outlined"
+                    startIcon={<LogOutIcon />}
+                    onClick={handleLogout}
+                >
+                    Logout
+                </Button>
+            </Toolbar>
+        </AppBar>
         <Container maxWidth="md">
             <Paper sx={{ p: 3, mt: 8 }}>
                 <Typography variant="h5" gutterBottom>My Documents</Typography>
@@ -291,6 +313,7 @@ function Documents() {
                 />
             )}
         </Container>
+        </>
     );
 }
 
