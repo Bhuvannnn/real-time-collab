@@ -6,6 +6,8 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 // Get all documents (including shared ones)
+// document-service/src/routes/documents.js
+// Update the GET route to return the owner ID as a string
 router.get('/', auth, async (req, res) => {
     try {
         const documents = await Document.find({
@@ -14,7 +16,15 @@ router.get('/', auth, async (req, res) => {
                 { 'collaborators.userId': req.user.userId }
             ]
         });
-        res.json(documents);
+
+        // Convert documents to plain objects and ensure owner is a string
+        const documentsWithStringOwner = documents.map(doc => {
+            const plainDoc = doc.toObject();
+            plainDoc.owner = plainDoc.owner.toString();
+            return plainDoc;
+        });
+
+        res.json(documentsWithStringOwner);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -117,28 +127,29 @@ router.get('/:id', auth, async (req, res) => {
 // Update document
 router.patch('/:id', auth, async (req, res) => {
     try {
-        // First find the document to check permissions
-        const document = await Document.findById(req.params.id);
-        
+        const document = await Document.findOne({
+            _id: req.params.id,
+            $or: [
+                { owner: req.user.userId },
+                { 'collaborators.userId': req.user.userId }
+            ]
+        });
+
         if (!document) {
             return res.status(404).json({ error: 'Document not found' });
         }
 
-        // Check if user has write permission
-        const isOwner = document.owner.toString() === req.user.userId;
-        const collaborator = document.collaborators.find(
-            c => c.userId.toString() === req.user.userId
-        );
-        
-        if (!isOwner && (!collaborator || collaborator.permission !== 'write')) {
-            return res.status(403).json({ error: 'You do not have permission to edit this document' });
+        // Only owner can change title
+        if (req.body.title && document.owner.toString() !== req.user.userId) {
+            return res.status(403).json({ error: 'Only the owner can change the document title' });
         }
 
-        // If they have permission, update the document
-        Object.assign(document, req.body);
+        // Update allowed fields
+        if (req.body.title) document.title = req.body.title;
+        if (req.body.content) document.content = req.body.content;
         document.lastModified = new Date();
+
         await document.save();
-        
         res.json(document);
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -169,6 +180,24 @@ router.delete('/:id/collaborators/:userId', auth, async (req, res) => {
         console.error('Error removing collaborator:', error);
         res.status(500).json({ error: error.message });
     }
+
+    router.delete('/:id', auth, async (req, res) => {
+        try {
+            const document = await Document.findOne({
+                _id: req.params.id,
+                owner: req.user.userId // Only owner can delete
+            });
+    
+            if (!document) {
+                return res.status(404).json({ error: 'Document not found or you are not the owner' });
+            }
+    
+            await Document.deleteOne({ _id: req.params.id });
+            res.json({ message: 'Document deleted successfully' });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
 });
 
 module.exports = router;

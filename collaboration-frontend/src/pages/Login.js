@@ -8,15 +8,31 @@ function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await login(email, password);
+            const response = await fetch('http://localhost:3001/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Login failed');
+            }
+
+            // Store both token and user ID
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userId', data.user.id); // Store user ID
+            
             navigate('/documents');
-        } catch (err) {
-            setError(err.message);
+        } catch (error) {
+            setError(error.message);
         }
     };
 

@@ -50,23 +50,22 @@ router.post('/register', async (req, res) => {
 });
 
 // Login Route
+// auth-service/src/routes/auth.js
+// Update the login route
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-
-        // Find user
         const user = await User.findOne({ email });
+        
         if (!user) {
             return res.status(400).json({ error: 'User does not exist' });
         }
 
-        // Validate password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
-        // Create token
         const token = jwt.sign(
             { userId: user._id },
             process.env.JWT_SECRET,
@@ -76,7 +75,7 @@ router.post('/login', async (req, res) => {
         res.json({
             token,
             user: {
-                id: user._id,
+                id: user._id,  // Make sure this is included
                 name: user.name,
                 email: user.email
             }
