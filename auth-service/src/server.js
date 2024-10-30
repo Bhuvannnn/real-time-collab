@@ -5,7 +5,6 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 
-// Initialize express
 const app = express();
 
 // Connect to MongoDB
