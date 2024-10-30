@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Container, Paper, Typography, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import config from '../config';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -12,7 +13,7 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:3001/api/auth/login', {
+            const response = await fetch(`${config.AUTH_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

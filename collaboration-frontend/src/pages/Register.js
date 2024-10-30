@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Paper, Typography, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import config from '../config';
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -31,7 +32,7 @@ function Register() {
         }
 
         try {
-            const response = await fetch('http://localhost:3001/api/auth/register', {
+            const response = await fetch(`${config.AUTH_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
