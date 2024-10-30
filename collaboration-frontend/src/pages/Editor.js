@@ -5,7 +5,7 @@ import { Container, Paper, Typography, CircularProgress } from '@mui/material';
 import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import ActiveUsers from '../components/ActiveUsers';
-import congif from '../config';
+import config from '../config';
 
 function DocumentEditor() {
     const { id } = useParams();
