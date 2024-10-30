@@ -13,7 +13,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://realtime-collaboration-platform-8evlr219h.vercel.app/'],
     credentials: true
 }));
 

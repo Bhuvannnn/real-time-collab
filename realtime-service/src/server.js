@@ -10,14 +10,14 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000', // In production, replace with your frontend URL
+        origin: ['https://realtime-collaboration-platform-8evlr219h.vercel.app/', 'http://localhost:3000'], // In production, replace with your frontend URL
         methods: ["GET", "POST"]
     }
 });
 
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://realtime-collaboration-platform-8evlr219h.vercel.app/'],
     credentials: true
 }));
 app.use(express.json());
