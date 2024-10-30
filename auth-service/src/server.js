@@ -13,9 +13,10 @@ connectDB();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://realtime-collaboration-platform.vercel.app/'],
+    origin: ['*'],
     credentials: true,
     methids: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
