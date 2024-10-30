@@ -2,9 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-const cors = require('cors');
+// const cors = require('cors');
 const socketAuth = require('./config/socketAuth');
 const documentHandlers = require('./socketHandlers/documentHandlers');
+const cors = require('cors');
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
+}));
 
 const app = express();
 const httpServer = createServer(app);
