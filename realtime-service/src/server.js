@@ -2,26 +2,24 @@ require('dotenv').config();
 const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-// const cors = require('cors');
 const socketAuth = require('./config/socketAuth');
 const documentHandlers = require('./socketHandlers/documentHandlers');
 const cors = require('cors');
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true
-}));
 
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: "*", // In production, replace with your frontend URL
+        origin: process.env.FRONTEND_URL || 'http://localhost:3000', // In production, replace with your frontend URL
         methods: ["GET", "POST"]
     }
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
+}));
 app.use(express.json());
 
 // Socket.io middleware
@@ -40,6 +38,6 @@ app.get('/health', (req, res) => {
 
 const PORT = process.env.PORT || 3003;
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT,'0.0.0.0', () => {
     console.log(`Realtime service running on port ${PORT}`);
 });

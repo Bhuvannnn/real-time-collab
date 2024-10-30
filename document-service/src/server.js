@@ -1,13 +1,9 @@
 require('dotenv').config();
 const express = require('express');
-// const cors = require('cors');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const documentRoutes = require('./routes/documents');
-const cors = require('cors');
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true
-}));
+
 
 const app = express();
 
@@ -15,15 +11,23 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Routes
 app.use('/api/documents', documentRoutes);
 
+app.get('/', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
 const PORT = process.env.PORT || 3002;
 
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', () => {
     console.log(`Document service running on port ${PORT}`);
 });
 
