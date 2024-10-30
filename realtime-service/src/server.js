@@ -10,16 +10,24 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: ['https://realtime-collaboration-platform.vercel.app/', 'http://localhost:3000'], // In production, replace with your frontend URL
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    }
+        origin: "*", // Allow all origins
+        methods: ["GET", "POST"],
+        allowedHeaders: ["Authorization"],
+        credentials: true
+    },
+    transports: ['websocket', 'polling']
 });
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://realtime-collaboration-platform.vercel.app/'],
-    credentials: true
+    origin: true, // Allow all origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
+
 app.use(express.json());
 
 // Socket.io middleware
@@ -37,7 +45,6 @@ app.get('/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3003;
-
 httpServer.listen(PORT,'0.0.0.0', () => {
     console.log(`Realtime service running on port ${PORT}`);
 });

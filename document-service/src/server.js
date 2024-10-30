@@ -12,12 +12,19 @@ connectDB();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://realtime-collaboration-platform.vercel.app/'],
+    origin: true, // Allow all origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
 
 app.use(express.json());
+
+app.get('/', (req, res) => {
+    res.json({ status: 'ok' });
+});
 
 // Routes
 app.use('/api/documents', documentRoutes);
