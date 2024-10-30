@@ -5,6 +5,7 @@ import { Container, Paper, Typography, CircularProgress } from '@mui/material';
 import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import ActiveUsers from '../components/ActiveUsers';
+import congif from '../config';
 
 function DocumentEditor() {
     const { id } = useParams();
@@ -22,8 +23,9 @@ function DocumentEditor() {
     // Initialize socket connection
     useEffect(() => {
         const token = localStorage.getItem('token');
-        const newSocket = io('http://localhost:3003', {
-            auth: { token }
+        const newSocket = io(config.SOCKET_URL, {
+            auth: { token },
+            transports: ['websocket']
         });
 
         newSocket.on('connect', () => {
@@ -59,7 +61,7 @@ function DocumentEditor() {
             try {
                 setLoading(true);
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3002/api/documents/${id}`, {
+                const response = await fetch(`${config.DOCUMENT_URL}/api/documents/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -145,7 +147,7 @@ function DocumentEditor() {
         debounce(async (newContent) => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3002/api/documents/${id}`, {
+                const response = await fetch(`${config.DOCUMENT_URL}/api/documents/${id}`, {
                     method: 'PATCH',
                     headers: {
                         'Authorization': `Bearer ${token}`,
