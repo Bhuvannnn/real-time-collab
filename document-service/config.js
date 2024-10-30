@@ -5,4 +5,4 @@ const config = {
     FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000'
 };
 
-module.exports = config;
+export default config;
