@@ -30,7 +30,7 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
             setLoading(true);
             
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3002/api/documents/${document._id}/share`, {
+            const response = await fetch(`${config.DOCUMENT_URL}/api/documents/${document._id}/share`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -67,7 +67,7 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
             
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `http://localhost:3002/api/documents/${document._id}/collaborators/${collaborator.userId}`,
+                `${config.DOCUMENT_URL}/api/documents/${document._id}/collaborators/${collaborator.userId}`,
                 {
                     method: 'DELETE',
                     headers: {

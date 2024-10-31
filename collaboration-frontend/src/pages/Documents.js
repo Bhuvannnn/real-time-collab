@@ -48,7 +48,7 @@ function Documents() {
     const loadDocuments = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3002/api/documents', {
+            const response = await fetch(`${config.DOCUMENT_URL}/api/documents`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -92,7 +92,7 @@ function Documents() {
     const handleEditDocument = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3002/api/documents/${editingDoc._id}`, {
+            const response = await fetch(`${config.DOCUMENT_URL}/api/documents${editingDoc._id}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -121,7 +121,7 @@ function Documents() {
         if (window.confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3002/api/documents/${docId}`, {
+                const response = await fetch(`${config.DOCUMENT_URL}/api/documents/${docId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`
