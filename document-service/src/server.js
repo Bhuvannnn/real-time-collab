@@ -1,3 +1,4 @@
+// document-service/src/server.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -9,30 +10,33 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// Middleware
+// CORS configuration with proper options
 app.use(cors({
-    origin: [
-        'http://localhost:3000',
-        process.env.FRONTEND_URL],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    origin: '*',  // Temporarily allow all origins to test
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 200
 }));
 
-app.use(express.json());
+// Add preflight handling
+app.options('*', cors());
 
-// Routes
-app.use('/api/documents', documentRoutes);
-
-app.get('/', (req, res) => {
-    res.json({ status: 'ok' });
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log('Incoming request:', {
+        method: req.method,
+        path: req.path,
+        origin: req.headers.origin,
+        headers: req.headers
+    });
+    next();
 });
 
-const PORT = process.env.PORT || 3002;
+app.use(express.json());
+app.use('/api/documents', documentRoutes);
 
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
     console.log(`Document service running on port ${PORT}`);
 });
-
