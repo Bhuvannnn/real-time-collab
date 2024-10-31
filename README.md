@@ -46,7 +46,10 @@ A full-stack real-time collaborative document editing platform built with the ME
    - Live updates
    - User presence tracking
 
-![Architecture Diagram](add_your_diagram_here)
+![Architecture Diagram](https://github.com/Bhuvannnn/real-time-collab/blob/master/Diagrams/Architecture.png)
+
+![Dataflow Diagram](https://github.com/Bhuvannnn/real-time-collab/blob/master/Diagrams/Dataflow%20Diagram.png)
+
 
 ### Technology Stack
 - **Frontend**: 
