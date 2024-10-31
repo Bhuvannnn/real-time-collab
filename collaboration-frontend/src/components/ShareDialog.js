@@ -1,5 +1,6 @@
 // src/components/ShareDialog.js
 import React, { useState } from 'react';
+import config from '../config';
 import {
     Dialog,
     DialogTitle,
