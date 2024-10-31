@@ -70,7 +70,7 @@ function Documents() {
     const createNewDocument = async () => {
         try {
             const token = localStorage.getItem('token');
-            await fetch('http://localhost:3002/api/documents', {
+            await fetch(`${config.DOCUMENT_URL}/api/documents`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
