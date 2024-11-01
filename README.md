@@ -224,6 +224,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## 📫 Contact
 
-Your Name - [bhuvanshah288@gmail.com]
+Bhuvan Shah - [bhuvanshah288@gmail.com]
 
 Project Link: [https://github.com/Bhuvannnn/real-time-collab]([https://github.com/yourusername/realtime-collaboration-platform](https://github.com/Bhuvannnn/real-time-collab))
