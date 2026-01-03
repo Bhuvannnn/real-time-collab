@@ -15,15 +15,16 @@ const socketAuth = async (socket, next) => {
 
         // Fetch user details from auth service
         try {
-            const response = await axios.get('http://localhost:3001/api/auth/user', {
+            const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:3001';
+            const response = await axios.get(`${authServiceUrl}/api/auth/user`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             
-            socket.userName = response.data.name;
+            socket.userName = response.data.name || `User ${decoded.userId.slice(0, 4)}`;
         } catch (error) {
-            console.error('Error fetching user details:', error);
+            console.error('Error fetching user details:', error.message);
             socket.userName = `User ${decoded.userId.slice(0, 4)}`;
         }
 

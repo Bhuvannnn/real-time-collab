@@ -130,6 +130,7 @@ Real-time Service (.env):
 ```env
 PORT=3003
 JWT_SECRET=your_jwt_secret
+AUTH_SERVICE_URL=http://localhost:3001
 FRONTEND_URL=http://localhost:3000
 ```
 
