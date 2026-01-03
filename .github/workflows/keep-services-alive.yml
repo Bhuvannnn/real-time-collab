@@ -1,0 +1,40 @@
+name: Keep Services Alive
+
+on:
+  schedule:
+    # Run on the 1st day of every month at 00:00 UTC
+    # This ensures services are pinged at least once every 30 days
+    - cron: '0 0 1 * *'
+  workflow_dispatch: # Allows manual triggering from GitHub Actions tab
+
+jobs:
+  ping-services:
+    name: Ping Render Services
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Ping Auth Service
+        run: |
+          echo "Pinging Auth Service..."
+          curl -f -s -o /dev/null -w "Status: %{http_code}\n" https://collab-auth-service.onrender.com/ || echo "Auth service ping failed (this is OK if service is starting)"
+      
+      - name: Ping Document Service
+        run: |
+          echo "Pinging Document Service..."
+          curl -f -s -o /dev/null -w "Status: %{http_code}\n" https://collab-document-service.onrender.com/ || echo "Document service ping failed (this is OK if service is starting)"
+      
+      - name: Ping Real-time Service
+        run: |
+          echo "Pinging Real-time Service..."
+          curl -f -s -o /dev/null -w "Status: %{http_code}\n" https://collab-realtime-service.onrender.com/health || echo "Real-time service ping failed (this is OK if service is starting)"
+      
+      - name: Summary
+        run: |
+          echo "✅ Health check ping completed!"
+          echo "This helps keep your MongoDB Atlas cluster active by generating traffic to your services."
+          echo "Services pinged:"
+          echo "  - Auth Service: https://collab-auth-service.onrender.com/"
+          echo "  - Document Service: https://collab-document-service.onrender.com/"
+          echo "  - Real-time Service: https://collab-realtime-service.onrender.com/health"
+
