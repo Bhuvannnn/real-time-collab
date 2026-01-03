@@ -62,14 +62,56 @@ function Register() {
     };
 
     return (
-        <Container maxWidth="sm">
-            <Paper sx={{ p: 3, mt: 8 }}>
-                <Typography variant="h5" component="h1" gutterBottom>
-                    Register
+        <Container 
+            maxWidth="sm" 
+            sx={{ 
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                py: 4
+            }}
+        >
+            <Paper 
+                elevation={2}
+                sx={{ 
+                    p: 4, 
+                    width: '100%',
+                    maxWidth: 440
+                }}
+            >
+                <Typography 
+                    variant="h4" 
+                    component="h1" 
+                    gutterBottom
+                    sx={{ 
+                        mb: 3,
+                        textAlign: 'center',
+                        fontWeight: 600,
+                        color: 'text.primary'
+                    }}
+                >
+                    Create Account
+                </Typography>
+                <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{ mb: 4, textAlign: 'center' }}
+                >
+                    Join us and start collaborating
                 </Typography>
 
                 {error && (
-                    <Typography color="error" sx={{ mb: 2 }}>
+                    <Typography 
+                        color="error" 
+                        sx={{ 
+                            mb: 2,
+                            p: 1.5,
+                            bgcolor: 'error.light',
+                            borderRadius: 2,
+                            textAlign: 'center'
+                        }}
+                    >
                         {error}
                     </Typography>
                 )}
@@ -83,6 +125,7 @@ function Register() {
                         onChange={handleChange}
                         margin="normal"
                         required
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         fullWidth
@@ -93,6 +136,7 @@ function Register() {
                         onChange={handleChange}
                         margin="normal"
                         required
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         fullWidth
@@ -103,6 +147,7 @@ function Register() {
                         onChange={handleChange}
                         margin="normal"
                         required
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         fullWidth
@@ -113,16 +158,28 @@ function Register() {
                         onChange={handleChange}
                         margin="normal"
                         required
+                        sx={{ mb: 3 }}
                     />
                     <Button 
                         fullWidth 
                         variant="contained" 
                         type="submit"
-                        sx={{ mt: 2 }}
+                        size="large"
+                        sx={{ 
+                            mt: 1,
+                            mb: 3,
+                            py: 1.5
+                        }}
                     >
-                        Register
+                        Create Account
                     </Button>
-                    <Typography sx={{ mt: 2, textAlign: 'center' }}>
+                    <Typography 
+                        variant="body2" 
+                        sx={{ 
+                            textAlign: 'center',
+                            color: 'text.secondary'
+                        }}
+                    >
                         Already have an account?{' '}
                         <Link 
                             href="/login" 
@@ -130,8 +187,15 @@ function Register() {
                                 e.preventDefault();
                                 navigate('/login');
                             }}
+                            sx={{ 
+                                fontWeight: 500,
+                                textDecoration: 'none',
+                                '&:hover': {
+                                    textDecoration: 'underline'
+                                }
+                            }}
                         >
-                            Login here
+                            Sign in here
                         </Link>
                     </Typography>
                 </form>

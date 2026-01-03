@@ -1,7 +1,18 @@
 // src/pages/Editor.js
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Paper, Typography, CircularProgress } from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+    Container, 
+    Paper, 
+    Typography, 
+    CircularProgress, 
+    Box,
+    AppBar,
+    Toolbar,
+    IconButton,
+    Chip,
+} from '@mui/material';
+import { ArrowBack as ArrowBackIcon, Edit as EditIcon } from '@mui/icons-material';
 import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import ActiveUsers from '../components/ActiveUsers';
@@ -9,6 +20,7 @@ import config from '../config';
 
 function DocumentEditor() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [socket, setSocket] = useState(null);
     const [content, setContent] = useState('');
     const [loading, setLoading] = useState(true);
@@ -170,39 +182,93 @@ function DocumentEditor() {
 
     if (loading) {
         return (
-            <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Box 
+                sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center',
+                    minHeight: '100vh'
+                }}
+            >
                 <CircularProgress />
-            </Container>
+            </Box>
         );
     }
 
     return (
-        <Container maxWidth="lg">
-            <Paper sx={{ p: 3, mt: 4, minHeight: '600px' }}>
-                <Typography variant="h5" gutterBottom>
-                    {document?.title || 'Loading...'}
-                </Typography>
-                
-                <ActiveUsers users={activeUsers} />
-                
-                <Editor
-                    height="500px"
-                    defaultLanguage="plaintext"
-                    value={content}
-                    onChange={hasWritePermission ? handleEditorChange : undefined}
-                    options={{
-                        minimap: { enabled: false },
-                        wordWrap: 'on',
-                        lineNumbers: 'off',
-                        glyphMargin: false,
-                        folding: false,
-                        lineDecorationsWidth: 0,
-                        lineNumbersMinChars: 0,
-                        readOnly: !hasWritePermission
+        <>
+            <AppBar 
+                position="sticky" 
+                color="default" 
+                elevation={0}
+                sx={{ 
+                    borderBottom: '1px solid',
+                    borderColor: 'divider'
+                }}
+            >
+                <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, sm: 3 } }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <IconButton 
+                            onClick={() => navigate('/documents')}
+                            sx={{ color: 'text.primary' }}
+                        >
+                            <ArrowBackIcon />
+                        </IconButton>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            {document?.title || 'Untitled Document'}
+                        </Typography>
+                        {!hasWritePermission && (
+                            <Chip 
+                                label="Read Only" 
+                                size="small" 
+                                icon={<EditIcon />}
+                                sx={{ 
+                                    bgcolor: 'warning.light',
+                                    color: 'warning.dark'
+                                }} 
+                            />
+                        )}
+                    </Box>
+                    <ActiveUsers users={activeUsers} />
+                </Toolbar>
+            </AppBar>
+            
+            <Container maxWidth="xl" sx={{ mt: 0, mb: 4, px: { xs: 2, sm: 3 } }}>
+                <Paper 
+                    elevation={0}
+                    sx={{ 
+                        mt: 3,
+                        minHeight: 'calc(100vh - 200px)',
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                        border: '1px solid',
+                        borderColor: 'divider'
                     }}
-                />
-            </Paper>
-        </Container>
+                >
+                    <Box sx={{ height: 'calc(100vh - 200px)' }}>
+                        <Editor
+                            height="100%"
+                            defaultLanguage="plaintext"
+                            value={content}
+                            onChange={hasWritePermission ? handleEditorChange : undefined}
+                            options={{
+                                minimap: { enabled: false },
+                                wordWrap: 'on',
+                                lineNumbers: 'on',
+                                glyphMargin: false,
+                                folding: false,
+                                readOnly: !hasWritePermission,
+                                fontSize: 14,
+                                fontFamily: 'Monaco, Menlo, "Courier New", monospace',
+                                padding: { top: 20, bottom: 20 },
+                                scrollBeyondLastLine: false,
+                            }}
+                            theme="vs"
+                        />
+                    </Box>
+                </Paper>
+            </Container>
+        </>
     );
 }
 

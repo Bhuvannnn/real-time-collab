@@ -13,34 +13,41 @@ const UserChip = styled(Chip)(({ theme, istyping }) => ({
     }),
     '@keyframes pulse': {
         '0%': {
-            boxShadow: '0 0 0 0 rgba(25, 118, 210, 0.4)',
+            boxShadow: '0 0 0 0 rgba(139, 126, 200, 0.4)',
             transform: 'scale(1)',
         },
         '50%': {
-            boxShadow: '0 0 0 10px rgba(25, 118, 210, 0)',
+            boxShadow: '0 0 0 10px rgba(139, 126, 200, 0)',
             transform: 'scale(1.05)',
         },
         '100%': {
-            boxShadow: '0 0 0 0 rgba(25, 118, 210, 0)',
+            boxShadow: '0 0 0 0 rgba(139, 126, 200, 0)',
             transform: 'scale(1)',
         },
     },
 }));
 
 function ActiveUsers({ users = [] }) {
+    if (users.length === 0) return null;
+    
     return (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2, p: 1 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
             {users.map((user) => (
                 <Tooltip
                     key={user.id}
                     title={user.isTyping ? `${user.name} is typing...` : user.name}
+                    arrow
                 >
                     <UserChip
                         avatar={
                             <Avatar 
                                 sx={{ 
-                                    bgcolor: user.isTyping ? 'primary.dark' : 'default',
-                                    color: user.isTyping ? 'white' : 'inherit'
+                                    bgcolor: user.isTyping ? 'primary.main' : 'secondary.light',
+                                    color: user.isTyping ? 'white' : 'secondary.dark',
+                                    width: 32,
+                                    height: 32,
+                                    fontSize: '0.875rem',
+                                    fontWeight: 600
                                 }}
                             >
                                 {user.name.charAt(0).toUpperCase()}
@@ -48,8 +55,10 @@ function ActiveUsers({ users = [] }) {
                         }
                         label={user.name}
                         istyping={user.isTyping.toString()}
+                        size="small"
                         sx={{
-                            fontWeight: user.isTyping ? 500 : 400
+                            fontWeight: user.isTyping ? 600 : 400,
+                            fontSize: '0.813rem'
                         }}
                     />
                 </Tooltip>

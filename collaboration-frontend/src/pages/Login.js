@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Paper, Typography, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import config from '../config';
 
 function Login() {
@@ -38,17 +37,69 @@ function Login() {
     };
 
     return (
-        <Container maxWidth="sm">
-            <Paper sx={{ p: 3, mt: 8 }}>
-                <Typography variant="h5" gutterBottom>Login</Typography>
-                {error && <Typography color="error">{error}</Typography>}
+        <Container 
+            maxWidth="sm" 
+            sx={{ 
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                py: 4
+            }}
+        >
+            <Paper 
+                elevation={2}
+                sx={{ 
+                    p: 4, 
+                    width: '100%',
+                    maxWidth: 440
+                }}
+            >
+                <Typography 
+                    variant="h4" 
+                    gutterBottom 
+                    sx={{ 
+                        mb: 3,
+                        textAlign: 'center',
+                        fontWeight: 600,
+                        color: 'text.primary'
+                    }}
+                >
+                    Welcome Back
+                </Typography>
+                <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{ mb: 4, textAlign: 'center' }}
+                >
+                    Sign in to continue to your workspace
+                </Typography>
+                
+                {error && (
+                    <Typography 
+                        color="error" 
+                        sx={{ 
+                            mb: 2,
+                            p: 1.5,
+                            bgcolor: 'error.light',
+                            borderRadius: 2,
+                            textAlign: 'center'
+                        }}
+                    >
+                        {error}
+                    </Typography>
+                )}
+                
                 <form onSubmit={handleSubmit}>
                     <TextField
                         fullWidth
                         label="Email"
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         margin="normal"
+                        required
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         fullWidth
@@ -57,17 +108,31 @@ function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         margin="normal"
+                        required
+                        sx={{ mb: 3 }}
                     />
                     <Button 
                         fullWidth 
                         variant="contained" 
                         type="submit" 
-                        sx={{ mt: 2 }}
+                        size="large"
+                        sx={{ 
+                            mt: 1,
+                            mb: 3,
+                            py: 1.5
+                        }}
                     >
-                        Login
+                        Sign In
                     </Button>
                 </form>
-                <Typography sx={{ mt: 2, textAlign: 'center' }}>
+                
+                <Typography 
+                    variant="body2" 
+                    sx={{ 
+                        textAlign: 'center',
+                        color: 'text.secondary'
+                    }}
+                >
                     Don't have an account?{' '}
                     <Link 
                         href="/register" 
@@ -75,8 +140,15 @@ function Login() {
                             e.preventDefault();
                             navigate('/register');
                         }}
+                        sx={{ 
+                            fontWeight: 500,
+                            textDecoration: 'none',
+                            '&:hover': {
+                                textDecoration: 'underline'
+                            }
+                        }}
                     >
-                        Register here
+                        Create one here
                     </Link>
                 </Typography>
             </Paper>

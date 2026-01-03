@@ -17,6 +17,8 @@ import {
     MenuItem,
     Typography,
     Alert,
+    Chip,
+    Box,
 } from '@mui/material';
 
 function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
@@ -96,16 +98,31 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle>Share Document</DialogTitle>
+        <Dialog 
+            open={open} 
+            onClose={onClose} 
+            maxWidth="md" 
+            fullWidth
+            PaperProps={{
+                sx: { borderRadius: 3 }
+            }}
+        >
+            <DialogTitle sx={{ pb: 1, fontWeight: 600 }}>Share Document</DialogTitle>
             <DialogContent>
                 {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
+                    <Alert 
+                        severity="error" 
+                        sx={{ 
+                            mb: 3, 
+                            borderRadius: 2 
+                        }}
+                        onClose={() => setError('')}
+                    >
                         {error}
                     </Alert>
                 )}
                 
-                <div style={{ marginBottom: '20px', marginTop: '10px' }}>
+                <Box sx={{ mb: 3, mt: 1 }}>
                     <TextField
                         fullWidth
                         label="Email address"
@@ -113,40 +130,61 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
                         onChange={(e) => setEmail(e.target.value)}
                         margin="dense"
                         error={!!error}
+                        sx={{ mb: 2 }}
                     />
                     <Select
                         value={permission}
                         onChange={(e) => setPermission(e.target.value)}
                         fullWidth
                         margin="dense"
-                        style={{ marginTop: '10px' }}
+                        sx={{ borderRadius: 2 }}
                     >
-                        <MenuItem value="read">Read</MenuItem>
-                        <MenuItem value="write">Write</MenuItem>
+                        <MenuItem value="read">Read Only</MenuItem>
+                        <MenuItem value="write">Can Edit</MenuItem>
                     </Select>
-                </div>
+                </Box>
 
                 {collaborators && collaborators.length > 0 && (
                     <>
-                        <Typography variant="h6">Shared with</Typography>
+                        <Typography 
+                            variant="subtitle1" 
+                            sx={{ 
+                                fontWeight: 600, 
+                                mb: 2,
+                                mt: 1
+                            }}
+                        >
+                            Shared with ({collaborators.length})
+                        </Typography>
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Email</TableCell>
-                                    <TableCell>Permission</TableCell>
-                                    <TableCell>Actions</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Permission</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {collaborators.map((collaborator) => (
                                     <TableRow key={collaborator.email}>
                                         <TableCell>{collaborator.email}</TableCell>
-                                        <TableCell>{collaborator.permission}</TableCell>
+                                        <TableCell>
+                                            <Chip 
+                                                label={collaborator.permission === 'write' ? 'Can Edit' : 'Read Only'}
+                                                size="small"
+                                                sx={{
+                                                    bgcolor: collaborator.permission === 'write' ? 'primary.light' : 'grey.200',
+                                                    color: collaborator.permission === 'write' ? 'primary.dark' : 'text.secondary'
+                                                }}
+                                            />
+                                        </TableCell>
                                         <TableCell>
                                             <Button 
                                                 color="error"
+                                                size="small"
                                                 onClick={() => handleRemoveCollaborator(collaborator)}
                                                 disabled={loading}
+                                                sx={{ borderRadius: 2 }}
                                             >
                                                 Remove
                                             </Button>
@@ -158,12 +196,19 @@ function ShareDialog({ open, onClose, document, onShare, collaborators = [] }) {
                     </>
                 )}
             </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose} disabled={loading}>Cancel</Button>
+            <DialogActions sx={{ px: 3, pb: 2.5 }}>
+                <Button 
+                    onClick={onClose} 
+                    disabled={loading}
+                    sx={{ borderRadius: 2 }}
+                >
+                    Cancel
+                </Button>
                 <Button 
                     onClick={handleShare} 
-                    color="primary"
+                    variant="contained"
                     disabled={loading || !email}
+                    sx={{ borderRadius: 2 }}
                 >
                     {loading ? 'Sharing...' : 'Share'}
                 </Button>
